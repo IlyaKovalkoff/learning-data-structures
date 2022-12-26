@@ -1,17 +1,21 @@
-#list make nodes not user(take only value)
-#
-
 
 class Node:
     def __init__(self, value = None):
         self.__value = value
-        self.__next = None 
-    
+        self.__next = None
+        self.__previous = None 
+          
     def get_value(self):
         return self.__value
 
     def get_next(self):
         return self.__next
+
+    def get_previous(self):
+        return self.__previous
+
+    def set_previous(self,value):
+        self.__previous = value
 
     def set_next(self, value):
         self.__next = value
@@ -23,22 +27,34 @@ class Node:
 class LinkedList():
     def __init__(self):
         self.__headvalue = None
-        self.__talevalue = None
+        self.__tailvalue = None
 
-    def return_object(self):
-        return self.__headvalue
+    def __getitem__(self, key):
+        return self.access_by_index(key)
+
+    def __setitem__ (self, index, value):
+        self.replace(index, value)
 
     def __set_first_value(self, first_value):
         self.__headvalue = first_value
-        self.__talevalue = first_value
+        self.__tailvalue = first_value
 
-    def push_back(self,object):
+    def replace(self, index, value):
+        current = self.__headvalue
+        for i in range(index):
+            current = current.get_next()
+        current.set_value(value)
+        
+
+    def push_back(self,value):
+        new_node = Node(value)
         if self.__headvalue is None:
-            self.__set_first_value(object)
-        self.__talevalue.set_next(object)
-        self.__talevalue = object
+            self.__set_first_value(new_node)
+        else:
+            self.__tailvalue.set_next(new_node)
+            new_node.set_previous(self.__tailvalue)
+            self.__tailvalue = new_node
       
-
     def printlist(self):
         value_for_print = self.__headvalue
         while value_for_print is not None:
@@ -48,56 +64,84 @@ class LinkedList():
     def access_by_index(self, index):
         node_iterator = self.__headvalue
         for i in range (index):
-            if i == index - 1:
-                print(node_iterator.get_value())
-            else:
-                node_iterator = node_iterator.get_next()
+            node_iterator = node_iterator.get_next()
+        return node_iterator.get_value()
 
     def insert(self, index, value):
+        new_node = Node(value)
         node_iterator = self.__headvalue
-        previous = None
+        previous = new_node
         for i in range (index):
             previous = node_iterator
-            node_iterator = node_iterator.get_next()
-        
-        value.set_next(node_iterator)
-        previous.set_next(value)
-
+            node_iterator = node_iterator.get_next() 
+        new_node.set_next(node_iterator)
+        node_iterator.set_previous(new_node)
+        if index == 0:
+            self.__headvalue = new_node
+        else:
+            new_node.set_previous(previous)
+            previous.set_next(new_node)
+            
     def remove(self, index):
-        index += 1
+        current = self.__headvalue
+        previous = None
+        for i in range (index): 
+            previous = current
+            current = current.get_next()
+        if index == 0:
+            self.__headvalue = current.get_next()
+            self.__headvalue.set_previous(None) 
+        else:
+            previous.set_next(current.get_next())
+            current.get_next().set_previous(previous)
+
+    def find_node(self, value):
+        count = 0
         node_iterator = self.__headvalue
-        for i in range (index):
-            if i == index - 2:
-                link_from = node_iterator
-                node_iterator = node_iterator.get_next()
-            elif i == index - 1:
-                link_to = node_iterator.get_next()
-                link_from.set_next(link_to)
+        result = None
+        while node_iterator:
+            if node_iterator.get_value() == value:
+                result = node_iterator
                 break
-            else:
-                node_iterator = node_iterator.get_next()
+            node_iterator = node_iterator.get_next()
+            count += 1
+        return count, result
+
+    def rfind_node(self, value):
+        count = 0
+        node_iterator = self.__tailvalue
+        result = None
+        while node_iterator:
+            if node_iterator.get_value() == value:
+                result = node_iterator
+                break
+            node_iterator = node_iterator.get_previous()
+            count += 1
+        
+        
+        return count, result
+
 
 
 list = LinkedList()
 
-list.push_back(Node("1"))
+list.push_back("1")
+list.push_back("2")    
+list.push_back("3")       
+list.push_back("4")
+list.push_back("5")
+list.push_back("6")
 
-e2 = Node("2")
-e3 = Node("3")
-e4 = Node("4")
-e5 = Node("5")       #**
-e6 = Node("6")
+#list.insert(0, '6')
 
-e_in = Node('-+-')
+#list.remove(2)
+#list.rfind_node('4')
 
-list.push_back(e2)     
-list.push_back(e3)       
-list.push_back(e4)
-list.push_back(e5)
-list.push_back(e6)
 
-list.insert(2, e_in)
 
-#list.remove(3)
 
+list[1] = 'dwdwdwdw'
 list.printlist()
+
+
+#print(list[2])
